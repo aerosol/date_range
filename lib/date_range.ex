@@ -2,7 +2,7 @@ defmodule DateRange do
   defstruct [:first_days, :last_days]
 
   @moduledoc """
-  Defines a range od dates.
+  Defines a range of dates.
 
   A DateRange implements the `Enumerable` protocol, which means
   functions in the `Enum` module can be used to work with
