@@ -2,6 +2,8 @@
 
 Defines a range of dates.
 
+Only supports ISO calendar. For a more robust implementation see: https://github.com/elixir-lang/elixir/pull/6227.
+
 ## Examples
 
 ```elixir

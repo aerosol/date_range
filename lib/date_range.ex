@@ -19,6 +19,7 @@ defmodule DateRange do
       iex> Enum.filter(range, &Date.day_of_week(&1) in [1])
       [~D[2017-01-02], ~D[2017-01-09], ~D[2017-01-16]]
 
+  Only ISO calendar is supported.
   """
 
   @doc """
@@ -33,7 +34,7 @@ defmodule DateRange do
       [~D[2017-12-31], ~D[2017-12-30], ~D[2017-12-29]]
 
   """
-  def new(first_date, last_date) do
+  def new(%Date{calendar: Calendar.ISO} = first_date, %Date{calendar: Calendar.ISO} = last_date) do
     %DateRange{first_days: date_to_days(first_date), last_days: date_to_days(last_date)}
   end
 
