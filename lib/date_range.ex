@@ -8,14 +8,16 @@ defmodule DateRange do
   functions in the `Enum` module can be used to work with
   ranges:
 
-      iex> range = DateRange.new(~D[2017-01-01], ~D[2017-01-03])
-      #DateRange<2017-01-01..2017-01-03>
+      iex> range = DateRange.new(~D[2017-01-01], ~D[2017-01-20])
+      #DateRange<2017-01-01..2017-01-20>
       iex> Enum.count(range)
-      3
+      20
       iex> Enum.member?(range, ~D[2017-01-01])
       true
-      iex> Enum.member?(range, ~D[2017-01-30])
+      iex> Enum.member?(range, ~D[2017-01-21])
       false
+      iex> Enum.filter(range, &Date.day_of_week(&1) in [1])
+      [~D[2017-01-02], ~D[2017-01-09], ~D[2017-01-16]]
 
   """
 
@@ -47,12 +49,12 @@ defmodule DateRange do
 end
 
 defimpl Enumerable, for: DateRange do
-  def reduce(%{first_days: first_days, last_days: last_days}, acc, fun) do
-    reduce(first_days, last_days, acc, fun, _up? = last_days >= first_days)
+  def reduce(%DateRange{first_days: first_days, last_days: last_days}, acc, fun) do
+    reduce(first_days, last_days, acc, &(fun.(DateRange.days_to_date(&1), &2)), first_days <= last_days)
   end
 
-  defp reduce(_x, _y, {:halt, {acc, c}}, _fun, _up?) do
-    {:halted, {Enum.map(acc, &DateRange.days_to_date/1), c}}
+  defp reduce(_x, _y, {:halt, acc}, _fun, _up?) do
+    {:halted, acc}
   end
 
   defp reduce(x, y, {:suspend, acc}, fun, up?) do
@@ -68,7 +70,7 @@ defimpl Enumerable, for: DateRange do
   end
 
   defp reduce(_, _, {:cont, acc}, _fun, _up) do
-    {:done, Enum.map(acc, &DateRange.days_to_date/1)}
+    {:done, acc}
   end
 
   def member?(%{first_days: first_days, last_days: last_days}, %Date{} = date) do
@@ -77,7 +79,7 @@ defimpl Enumerable, for: DateRange do
   end
 
   def count(%{first_days: first_days, last_days: last_days}) do
-    Enumerable.Range.count(first_days..last_days)
+    {:ok, abs(first_days - last_days) + 1}
   end
 end
 
